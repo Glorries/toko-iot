@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IoT Part Store — Katalog Komponen Mikrokontroler</title>
+  <!-- Menghubungkan file desain CSS (akan kita isi di langkah berikutnya) -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- 1. BAGIAN NAVIGASI (HEADER) -->
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="#" class="logo">IoT<span>Part</span></a>
+      <nav class="nav-links" id="nav-links">
+        <a href="#katalog">Katalog</a>
+        <a href="#daftar-harga">Daftar Harga</a>
+        <a href="#galeri">Galeri</a>
+        <a href="#kontak">Kontak</a>
+        <a href="admin.html" class="nav-admin">Admin</a>
+      </nav>
+      <button class="menu-toggle" id="menu-toggle" aria-label="Buka Menu">☰</button>
+    </div>
+  </header>
+
+  <!-- 2. BAGIAN PEMBUKA (HERO) -->
+  <section class="hero">
+    <div class="container hero-content">
+      <h1>Komponen IoT & Mikrokontroler Siap Pakai</h1>
+      <p>Menyediakan board ESP32 dan layar TFT LCD berkualitas untuk proyek elektronika, hobi, dan riset. Pesan mudah langsung via WhatsApp.</p>
+      <div class="hero-buttons">
+        <a href="#katalog" class="btn btn-primary">Lihat Katalog</a>
+        <a href="#kontak" class="btn btn-outline">Tanya Stok</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. BAGIAN KATALOG PRODUK -->
+  <section id="katalog" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Katalog Produk</h2>
+        <p>Pilih komponen yang kamu butuhkan, klik tombol WhatsApp untuk pemesanan cepat.</p>
+      </div>
+
+      <!-- Tombol Filter Kategori -->
+      <div class="filter-buttons">
+        <button class="filter-btn active" data-filter="all">Semua</button>
+        <button class="filter-btn" data-filter="mikrokontroler">Mikrokontroler</button>
+        <button class="filter-btn" data-filter="lcd">Layar LCD</button>
+      </div>
+
+      <!-- Daftar Produk akan dimuat otomatis oleh JavaScript di sini -->
+      <div id="product-list" class="product-grid">
+        <p class="loading-text">Daftar produk akan muncul setelah kita mengisi file JavaScript di langkah berikutnya.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. BAGIAN DAFTAR HARGA RINGKAS -->
+  <section id="daftar-harga" class="section section-alt">
+    <div class="container">
+      <div class="section-header">
+        <h2>Daftar Harga Ringkas</h2>
+        <p>Update harga terbaru untuk pembelian satuan maupun proyek.</p>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="price-table">
+          <thead>
+            <tr>
+              <th>Nama Produk</th>
+              <th>Kategori</th>
+              <th>Harga</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="price-table-body">
+            <!-- Isi tabel akan dimuat otomatis oleh JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. BAGIAN GALERI FOTO -->
+  <section id="galeri" class="section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Galeri Produk & Dokumentasi</h2>
+        <p>Foto fisik komponen dan contoh tampilan layar saat diuji.</p>
+      </div>
+
+      <div id="gallery-grid" class="gallery-grid">
+        <!-- Foto galeri akan dimuat otomatis oleh JavaScript -->
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. BAGIAN FORMULIR KONTAK -->
+  <section id="kontak" class="section section-alt">
+    <div class="container">
+      <div class="section-header">
+        <h2>Hubungi Kami</h2>
+        <p>Punya pertanyaan soal spesifikasi, stok banyak, atau pengiriman? Kirim pesan langsung ke WhatsApp kami.</p>
+      </div>
+
+      <form id="contact-form" class="contact-form">
+        <div class="form-group">
+          <label for="nama">Nama Lengkap</label>
+          <input type="text" id="nama" placeholder="Contoh: Budi Santoso" required>
+        </div>
+        <div class="form-group">
+          <label for="pesan">Pesan / Pertanyaan</label>
+          <textarea id="pesan" rows="4" placeholder="Tulis produk yang dicari atau pertanyaanmu di sini..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Kirim Pesan via WhatsApp</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- 7. BAGIAN BAWAH (FOOTER) -->
+  <footer class="footer">
+    <div class="container footer-content">
+      <p>&copy; 2026 IoTPart Store. Semua hak cipta dilindungi.</p>
+      <a href="admin.html" class="footer-link">Masuk Halaman Admin</a>
+    </div>
+  </footer>
+
+ 
+  <!-- Menghubungkan file JavaScript (akan kita isi nanti) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

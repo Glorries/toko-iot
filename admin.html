@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel — IoTPart Store</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    .admin-wrap { padding: 40px 0 80px; min-height: 80vh; }
+    .login-box {
+      max-width: 420px; margin: 40px auto; background: var(--surface);
+      padding: 32px; border-radius: var(--radius-md); border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+    }
+    .login-box h2 { margin-bottom: 6px; font-size: 1.5rem; }
+    .login-box p { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 24px; }
+    .hidden { display: none !important; }
+    .admin-tabs {
+      display: flex; gap: 10px; margin-bottom: 28px; border-bottom: 1px solid var(--border);
+      padding-bottom: 14px; flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 10px 20px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+      background: var(--surface); color: var(--text-secondary); font-weight: 600;
+      cursor: pointer; transition: var(--transition); font-size: 0.92rem;
+    }
+    .tab-btn.active {
+      background: var(--accent); color: #fff; border-color: var(--accent);
+    }
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px; margin-bottom: 28px;
+    }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-md); padding: 20px; box-shadow: var(--shadow-sm);
+    }
+    .stat-label { font-size: 0.85rem; color: var(--text-secondary); font-weight: 600; }
+    .stat-value { font-size: 1.7rem; font-weight: 800; color: var(--text-primary); margin-top: 6px; }
+    .admin-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-md); padding: 28px; margin-bottom: 28px;
+      box-shadow: var(--shadow-sm);
+    }
+    .admin-card h3 { margin-bottom: 20px; font-size: 1.25rem; }
+    .form-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;
+    }
+    .form-group select {
+      width: 100%; padding: 12px 14px; border: 1px solid var(--border);
+      border-radius: var(--radius-sm); font-family: inherit; font-size: 0.95rem;
+      background: #fff; color: var(--text-primary);
+    }
+    .proof-links { display: flex; flex-direction: column; gap: 6px; }
+    .proof-link {
+      font-size: 0.82rem; color: var(--accent); text-decoration: none; font-weight: 600;
+    }
+    .proof-link:hover { text-decoration: underline; }
+    .action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn-sm {
+      padding: 6px 12px; font-size: 0.8rem; border-radius: 6px; border: none;
+      cursor: pointer; font-weight: 600;
+    }
+    .btn-danger { background: #fee2e2; color: #991b1b; }
+    .btn-danger:hover { background: #fecaca; }
+    .btn-toggle { background: #eff6ff; color: #1d4ed8; }
+    .btn-toggle:hover { background: #dbeafe; }
+    .thumb-img {
+      width: 48px; height: 48px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border);
+    }
+    .alert-msg {
+      padding: 12px 14px; border-radius: var(--radius-sm); font-size: 0.9rem;
+      margin-bottom: 16px; font-weight: 500;
+    }
+    .alert-error { background: #fee2e2; color: #991b1b; }
+    .alert-success { background: #dcfce7; color: #166534; }
+  </style>
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="container nav-container">
+      <a href="index.html" class="logo">IoT<span>Part</span> Admin</a>
+      <div class="nav-links" style="display: flex;">
+        <a href="index.html">← Kembali ke Toko</a>
+        <button id="logout-btn" class="btn btn-outline hidden" style="padding: 7px 14px; font-size: 0.85rem;">Keluar</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container admin-wrap">
+
+    <!-- FORM LOGIN -->
+    <section id="login-section" class="login-box">
+      <h2>Login Admin</h2>
+      <p>Masuk untuk mengelola produk, penjualan, dan bukti transaksi.</p>
+      <div id="login-alert" class="alert-msg alert-error hidden"></div>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="login-email">Email Admin</label>
+          <input type="email" id="login-email" placeholder="admin@email.com" required>
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" placeholder="••••••••" required>
+        </div>
+        <button type="submit" id="login-btn" class="btn btn-primary btn-full">Masuk</button>
+      </form>
+    </section>
+
+    <!-- DASHBOARD ADMIN -->
+    <section id="dashboard-section" class="hidden">
+
+      <!-- Ringkasan Statistik -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Produk</div>
+          <div class="stat-value" id="stat-products">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Transaksi</div>
+          <div class="stat-value" id="stat-count">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Pendapatan</div>
+          <div class="stat-value" id="stat-revenue">Rp 0</div>
+        </div>
+      </div>
+
+      <!-- Tombol Pindah Tab -->
+      <div class="admin-tabs">
+        <button class="tab-btn active" data-tab="tab-sales">Catat Penjualan</button>
+        <button class="tab-btn" data-tab="tab-products">Kelola Produk</button>
+      </div>
+
+      <!-- TAB 1: PENJUALAN -->
+      <div id="tab-sales" class="tab-content">
+        <div class="admin-card">
+          <h3>Catat Penjualan Baru</h3>
+          <div id="sale-alert" class="alert-msg hidden"></div>
+
+          <form id="sale-form">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="product-name">Produk Terjual</label>
+                <select id="product-name" required>
+                  <option value="Produk Lainnya">Memuat produk...</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="buyer-name">Nama Pembeli</label>
+                <input type="text" id="buyer-name" placeholder="Contoh: Andi" required>
+              </div>
+              <div class="form-group">
+                <label for="quantity">Jumlah (pcs)</label>
+                <input type="number" id="quantity" value="1" min="1" required>
+              </div>
+              <div class="form-group">
+                <label for="total-price">Total Harga (Rp)</label>
+                <input type="number" id="total-price" placeholder="Contoh: 95000" required>
+              </div>
+              <div class="form-group">
+                <label for="sale-date">Tanggal Transaksi</label>
+                <input type="date" id="sale-date" required>
+              </div>
+              <div class="form-group">
+                <label for="notes">Catatan (Opsional)</label>
+                <input type="text" id="notes" placeholder="Contoh: COD / Kirim JNE">
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="transfer-proof">Foto Bukti Transfer (Opsional)</label>
+                <input type="file" id="transfer-proof" accept="image/*">
+              </div>
+              <div class="form-group">
+                <label for="transaction-photo">Foto Bukti Transaksi / Barang (Opsional)</label>
+                <input type="file" id="transaction-photo" accept="image/*">
+              </div>
+            </div>
+
+            <button type="submit" id="save-sale-btn" class="btn btn-primary">Simpan Data Penjualan</button>
+          </form>
+        </div>
+
+        <div class="admin-card">
+          <h3>Riwayat Penjualan</h3>
+          <div class="table-wrapper">
+            <table class="price-table">
+              <thead>
+                <tr>
+                  <th>Tanggal</th>
+                  <th>Produk</th>
+                  <th>Pembeli</th>
+                  <th>Qty</th>
+                  <th>Total</th>
+                  <th>Bukti Foto</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="sales-table-body">
+                <tr><td colspan="7">Memuat data penjualan...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: KELOLA PRODUK -->
+      <div id="tab-products" class="tab-content hidden">
+        <div class="admin-card">
+          <h3>Tambah Produk Baru</h3>
+          <div id="prod-alert" class="alert-msg hidden"></div>
+
+          <form id="product-form">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="prod-name">Nama Produk</label>
+                <input type="text" id="prod-name" placeholder="Contoh: ESP32-S3 N16R8" required>
+              </div>
+              <div class="form-group">
+                <label for="prod-category">Kategori</label>
+                <select id="prod-category" required>
+                  <option value="mikrokontroler">Mikrokontroler</option>
+                  <option value="lcd">Layar LCD</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="prod-price">Harga (Rp)</label>
+                <input type="number" id="prod-price" placeholder="Contoh: 95000" required>
+              </div>
+              <div class="form-group">
+                <label for="prod-status">Status Stok</label>
+                <select id="prod-status" required>
+                  <option value="Tersedia">Tersedia</option>
+                  <option value="Habis">Habis</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="prod-specs">Spesifikasi Singkat</label>
+              <textarea id="prod-specs" rows="2" placeholder="Contoh: Dual-core 240MHz, Wi-Fi + BLE 5.0, USB-C..." required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="prod-image">Foto Produk (Opsional)</label>
+              <input type="file" id="prod-image" accept="image/*">
+            </div>
+
+            <button type="submit" id="save-prod-btn" class="btn btn-primary">Tambah Produk ke Katalog</button>
+          </form>
+        </div>
+
+        <div class="admin-card">
+          <h3>Daftar Produk Saat Ini</h3>
+          <div class="table-wrapper">
+            <table class="price-table">
+              <thead>
+                <tr>
+                  <th>Foto</th>
+                  <th>Nama Produk</th>
+                  <th>Kategori</th>
+                  <th>Harga</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="products-table-body">
+                <tr><td colspan="6">Memuat daftar produk...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>
